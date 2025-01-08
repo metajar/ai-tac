@@ -31,6 +31,7 @@ type payload struct {
 
 func main() {
 	question := flag.String("question", "", "question")
+	host := flag.String("host", "", "host")
 	flag.Parse()
 
 	for {
@@ -86,7 +87,7 @@ func main() {
 		// Scrapli Setup
 		pe, err := platform.NewPlatform(
 			"cisco_iosxr",
-			"172.20.20.3",
+			*host,
 			options.WithAuthNoStrictKey(),
 			options.WithAuthUsername("clab"),
 			options.WithAuthPassword("clab@123"),
