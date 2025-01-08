@@ -23,6 +23,8 @@ var testMetaData = `
 {"router_type": "Cisco XRv 9000", "Virtual": true}
 `
 
+var historyBuffer bytes.Buffer
+
 type payload struct {
 	Question string `json:"question"`
 	Metadata string `json:"metadata"`
@@ -39,16 +41,7 @@ func main() {
 			Question: *question,
 			Metadata: testMetaData,
 		}
-
-		_, err := os.Stat("output.txt")
-		if err == nil {
-			bs, err := os.ReadFile("output.txt")
-			if err != nil {
-				log.Fatal(err)
-			}
-			p.Previous = string(bs)
-		}
-
+		p.Previous = string(historyBuffer.Bytes())
 		var buffer bytes.Buffer
 
 		payloadBytes, err := json.Marshal(p)
@@ -61,9 +54,11 @@ func main() {
 				openai.SystemMessage("You are a network engineer that troubleshoots networking issues. You only" +
 					"ever will return commands with the problem that can be ran and you WILL NEVER, I REPEAT, NEVER return" +
 					"any command that will alter the configuration, any debug commands, or any other command known to cause issues" +
-					"such as ping etc that will cause harm or cause the system to hang. Only give commands that are one command per line. If" +
-					"you know what the issue is don't go any further and you need to say the stop phrase VIVACISCO and then give a detail" +
-					"explanation of the problem and how one would resolve it. The output should be in markdown."),
+					"such as ping etc that will cause harm or cause the system to hang. Only give commands that are one command per line." +
+					" It is also very important that if you can not determine the issue from the context that is passed in you will " +
+					"give commands to run until you have a high certainty that you know the exact issue that is data driven and " +
+					"not just theory. If you know what the issue is don't go any further and you need to say the stop phrase " +
+					"VIVACISCO and then give a detail explanation of the problem and how one would resolve it. The output should be in markdown."),
 				openai.UserMessage(string(payloadBytes)),
 			}),
 			Model: openai.F(openai.ChatModelGPT4o),
@@ -81,7 +76,7 @@ func main() {
 			fmt.Println(out)
 			os.Exit(0)
 		}
-		buffer.WriteString(chatCompletion.Choices[0].Message.Content)
+		historyBuffer.WriteString(chatCompletion.Choices[0].Message.Content)
 		commandsToRun := strings.Split(chatCompletion.Choices[0].Message.Content, "\n")
 
 		// Scrapli Setup
@@ -114,14 +109,8 @@ func main() {
 			fmt.Println(results.Responses[i].Result)
 			buffer.WriteString(results.Responses[i].Result)
 		}
-		// write the buffer to file
-		file, err := os.OpenFile("output.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
 
-		_, err = file.Write(buffer.Bytes())
+		_, err = historyBuffer.Write(buffer.Bytes())
 		if err != nil {
 			log.Fatal(err)
 		}
