@@ -2,6 +2,11 @@
 
 An AI-powered network troubleshooting assistant that combines GPT-4's analytical capabilities with automated network device interaction.
 
+![demo.gif](demo.gif)
+
+![demo2.gif](demo2.gif)
+
+
 ## Overview
 
 AI TAC is a Go-based CLI tool that simulates a network TAC engineer by automatically executing diagnostic commands and analyzing their output. It uses GPT-4 to determine appropriate troubleshooting steps while maintaining strict safety measures to prevent any harmful commands from being executed.

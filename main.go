@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -12,7 +11,9 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 
+	"github.com/adhocore/chin"
 	"github.com/charmbracelet/glamour"
 	"github.com/openai/openai-go"
 	"github.com/scrapli/scrapligo/driver/options"
@@ -35,7 +36,9 @@ func main() {
 	question := flag.String("question", "", "question")
 	host := flag.String("host", "", "host")
 	flag.Parse()
-
+	var wg sync.WaitGroup
+	s := chin.New().WithWait(&wg)
+	go s.Start()
 	for {
 		p := payload{
 			Question: *question,
@@ -67,6 +70,7 @@ func main() {
 			panic(err.Error())
 		}
 		if strings.Contains(chatCompletion.Choices[0].Message.Content, "VIVACISCO") {
+			s.Stop()
 			clearScreen()
 			explanation := strings.Split(chatCompletion.Choices[0].Message.Content, "VIVACISCO")[1]
 			out, err := glamour.Render("# AI TAC EXPLANATION\n"+explanation, "dark")
@@ -114,19 +118,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		// Ask if user wants to continue
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Do you want to continue troubleshooting? (y/n): ")
-		response, _ := reader.ReadString('\n')
-		response = strings.ToLower(strings.TrimSpace(response))
-
-		if response != "y" {
-			break
-		}
 	}
 }
-
 func clearScreen() {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
