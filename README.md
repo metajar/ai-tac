@@ -2,10 +2,12 @@
 
 An AI-powered network troubleshooting assistant that combines GPT-4's analytical capabilities with automated network device interaction.
 
-![demo.gif](demo.gif)
+# TUI Demo
 
-![demo2.gif](demo2.gif)
+![tuidemo.gif](images/tuidemo.gif)
 
+# CLI Demo 
+![demo.gif](images/demo.gif)
 
 ## Overview
 
@@ -49,13 +51,23 @@ export OPENAI_API_KEY='your-api-key-here'
 Run the program with the following flags:
 
 ```bash
-go run main.go -question "What is your troubleshooting question?" -host "device-ip-or-hostname"
+go run cmd/cli/main.go -question "What is your troubleshooting question?" -host "device-ip-or-hostname"
 ```
 
 ### Example:
 ```bash
-go run main.go -question "Why is interface GigabitEthernet0/0/0/0 down?" -host "192.168.1.1"
+go run cmd/cli/main.go -question "Why is interface GigabitEthernet0/0/0/0 down?" -host "192.168.1.1"
 ```
+
+### Build The TUI
+
+You can build the TUI by running:
+
+```bash
+go build -o ./ai-tac ./cmd/tui
+```
+
+You can then run the ai-tac binary and have fun.
 
 ## How It Works
 
@@ -82,11 +94,13 @@ go run main.go -question "Why is interface GigabitEthernet0/0/0/0 down?" -host "
 
 ## Configuration
 
-The tool currently uses hardcoded credentials for device access:
+The CLI tool currently uses hardcoded credentials for device access:
 - Username: clab
 - Password: clab@123
 
 For production use, you should modify these to use environment variables or a secure configuration file.
+
+The TUI has a prompt at the beginning of the troubleshooting session to set these.
 
 ## Limitations
 
