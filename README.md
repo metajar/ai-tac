@@ -32,7 +32,7 @@ AI TAC is a Go-based CLI tool that simulates a network TAC engineer by automatic
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
+git clone https://www.github.com/metajar/ai-tac
 cd ai-tac
 ```
 
